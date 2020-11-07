@@ -1,0 +1,17 @@
+#slider{
+    display: none;
+    margin: 10px;
+}
+#input{
+    display: none;
+    margin: 10px;
+}
+
+#buttonSSE{
+    margin: 10px;
+}
+
+.form-check{
+    text-align: center;
+    display: inline-block;
+}
