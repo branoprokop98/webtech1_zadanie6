@@ -78,10 +78,10 @@ var x = document.addEventListener("DOMContentLoaded", () => {
                         // On category scale, minimal zoom level before actually applying zoom
                         sensitivity: 3,
 
-                        // Function called while the user is zooming
-                        onZoom: function ({ chart }) { console.log(`I'm zooming!!!`); },
-                        // Function called once zooming is completed
-                        onZoomComplete: function ({ chart }) { console.log(`I was zoomed!!!`); }
+                        // // Function called while the user is zooming
+                        // onZoom: function ({ chart }) { console.log(`I'm zooming!!!`); },
+                        // // Function called once zooming is completed
+                        // onZoomComplete: function ({ chart }) { console.log(`I was zoomed!!!`); }
                     }
                 }
             }
@@ -111,22 +111,42 @@ var x = document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
     }
 
+    document.getElementById('showSin').addEventListener('click', e => {
+        if(!e.target.checked){
+            chart.data.datasets[0].hidden = true;
+        }
+        else if(e.target.checked){
+            chart.data.datasets[0].hidden = false;
+        }
+        chart.update();
+    })
+    document.getElementById('showCos').addEventListener('click', e => {
+        if(!e.target.checked){
+            chart.data.datasets[1].hidden = true;
+        }
+
+        else if(e.target.checked){
+            chart.data.datasets[1].hidden = false;
+        }
+        chart.update();
+    })
+
 });
 
-function multiplyGraphSlider() {
-    value = document.getElementById("customRange").value;
-    let input = document.getElementById('inputNumber');
-    let slider = document.getElementById('customRange');
-    input.value = slider.value;
-    console.log(value);
-}
+// function multiplyGraphSlider() {
+//     value = document.getElementById("customRange").value;
+//     let input = document.getElementById('inputNumber');
+//     let slider = document.getElementById('customRange');
+//     input.value = slider.value;
+//     console.log(value);
+// }
 
-function multipyGraphNumber() {
-    value = document.getElementById("inputNumber").value
-    let input = document.getElementById('inputNumber');
-    let slider = document.getElementById('customRange');
-    slider.value = input.value;
-}
+// function multipyGraphNumber() {
+//     value = document.getElementById("inputNumber").value
+//     let input = document.getElementById('inputNumber');
+//     let slider = document.getElementById('customRange');
+//     slider.value = input.value;
+// }
 
 function showElement(elem, checkbox) {
     let check = document.getElementById(checkbox).value;
@@ -168,37 +188,155 @@ function showSliderField() {
     }
 }
 
-function showSinGraph() {
-    let chart = document.getElementById('myChart');
-}
+// function showSinGraph() {
+//     let chart = document.getElementById('myChart');
+//     let check = document.getElementById('showSin').checked;
 
-function showCosGraph() {
-    let chart = document.getElementById('myChart');
-}
+//     if (!check) {
+//         chart.data.datasets[0].hidden = true;
+//     }
+//     else {
+//         chart.data.datasets[0].hidden = false;
+//     }
+// }
 
+// function showCosGraph() {
+//     let chart = document.getElementById('myChart');
+//     let check = document.getElementById('showCos').checked;
+
+//     if (!check) {
+//         chart.data.datasets[1].hidden = true;
+//     }
+//     else {
+//         chart.data.datasets[1].hidden = false;
+//     }
+// }
+
+
+
+const template = document.createElement('template');
+template.innerHTML = `
+    <div class="form-check-input">
+        <input type="checkbox" class="form-check-input" id="showInput">
+        <label class="form-check-label" for="showInput">Zadanie hodnoty</label>
+    </div>
+
+    <div id="input">
+        <input type="number" class="form-control" name="val" id="inputNumber" value="1">
+    </div>
+
+    <div class="form-check-slider">
+        <input type="checkbox" class="form-check-input" id="showSlider">
+        <label class="form-check-label" for="showInput">Výber hodnoty</label>
+    </div>
+
+    <div id="slider">
+        <input type="range" name="val" class="custom-range" id="customRange" min="1"
+        max="100" value="1">
+    </div>
+    <style>
+    #slider{
+        display: none;
+        margin: 10px;
+    }
+    #input{
+        display: none;
+        margin: 10px;
+    }
+    </style>
+    `;
 
 class Amplitude extends HTMLElement {
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' });
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+
+
+    connectInput() {
+        value = this.shadowRoot.querySelector('#customRange').value;
+        let input = this.shadowRoot.querySelector('#inputNumber');
+        let slider = this.shadowRoot.querySelector('#customRange');
+        input.value = slider.value;
+        console.log(value);
+    }
+
+    connectSlider() {
+        value = this.shadowRoot.querySelector("#inputNumber").value
+        let input = this.shadowRoot.querySelector('#inputNumber');
+        let slider = this.shadowRoot.querySelector('#customRange');
+        slider.value = input.value;
+    }
+
     connectedCallback() {
-        this.innerHTML = `
-        <div class="form-check-amp">
-            <input type="checkbox" class="form-check-input" id="showInput" onclick="showInputField()">
-            <label class="form-check-label" for="showInput">Zadanie hodnoty</label>
-        </div>
+        this.shadowRoot.querySelector('#showInput').addEventListener('click', e => {
+            let input = this.shadowRoot.querySelector('#input');
 
-        <div id="input">
-            <input type="number" class="form-control" onchange="multipyGraphNumber()" name="val" id="inputNumber">
-        </div>
+            if (e.target.checked == true) {
+                input.style.display = 'block';
+                console.log(e.target.checked);
+            }
+            else {
+                input.style.display = 'none';
+                console.log(e.target.checked);
+            }
+        })
 
-        <div class="form-check-amp">
-            <input type="checkbox" class="form-check-input" id="showSlider" onclick="showSliderField()">
-            <label class="form-check-label" for="showInput">Výber hodnoty</label>
-        </div>
-        
-        <div id="slider">
-            <input type="range" onchange="multiplyGraphSlider()" name="val" class="custom-range" id="customRange" min="1"
-            max="100">
-        </div>`;
+        this.shadowRoot.querySelector('#showSlider').addEventListener('click', e => {
+            let input = this.shadowRoot.querySelector('#slider');
+
+            if (e.target.checked == true) {
+                input.style.display = 'block';
+                console.log(e.target.checked);
+            }
+            else {
+                input.style.display = 'none';
+                console.log(e.target.checked);
+            }
+        })
+
+        this.shadowRoot.querySelector('#inputNumber').addEventListener('change', () => {
+            this.connectSlider();
+        })
+
+        this.shadowRoot.querySelector('#customRange').addEventListener('change', () => {
+            this.connectInput();
+        })
     }
 }
 
 customElements.define('ampli-tude', Amplitude);
+
+
+
+
+
+
+// class Amplitude extends HTMLElement {
+//     constructor(){
+//         super();
+//     }
+//     connectedCallback() {
+//         this.innerHTML = `
+//         <div class="form-check-amp">
+//             <input type="checkbox" class="form-check-input" id="showInput" onclick="showInputField()">
+//             <label class="form-check-label" for="showInput">Zadanie hodnoty</label>
+//         </div>
+
+//         <div id="input">
+//             <input type="number" class="form-control" onchange="multipyGraphNumber()" name="val" id="inputNumber">
+//         </div>
+
+//         <div class="form-check-amp">
+//             <input type="checkbox" class="form-check-input" id="showSlider" onclick="showSliderField()">
+//             <label class="form-check-label" for="showInput">Výber hodnoty</label>
+//         </div>
+
+//         <div id="slider">
+//             <input type="range" onchange="multiplyGraphSlider()" name="val" class="custom-range" id="customRange" min="1"
+//             max="100">
+//         </div>`;
+//     }
+//}
